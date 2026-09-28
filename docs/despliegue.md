@@ -11,6 +11,17 @@ Base de datos: PostgreSQL (migrado desde MySQL el 2026-09-23; no había datos qu
 | `backend/Dockerfile` | node:20-bookworm-slim + openssl + ffmpeg + espeak-ng + **piper-tts** (voz neural es_MX) + `db push` + seed + start |
 | `frontend/Dockerfile` | build de Vite → Nginx sirviendo `dist` |
 
+## Instalación en un comando
+
+```bash
+./install.sh    # verifica runtime (lo instala con sudo si falta), construye,
+                # levanta y VERIFICA todo (suite de 8 chequeos en verde)
+```
+
+El instalador reconstruye desde cero si hace falta (probado borrando las
+imágenes locales: rebuild completo + 8/8 PASS). Re-verificar en cualquier
+momento: `./verify.sh`.
+
 ## Comandos
 
 ```bash
