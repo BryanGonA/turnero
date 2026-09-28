@@ -15,6 +15,7 @@ const RequesterPage = () => {
   const [selectedArea, setSelectedArea] = useState(null);
   const [step, setStep] = useState(1); // 1 = módulo, 2 = cédula (una entrada por vez)
   const [idNumber, setIdNumber] = useState('');
+  const [isPriority, setIsPriority] = useState(false); // adulto mayor, embarazo, discapacidad
   const [loading, setLoading] = useState(false);
   const [lastTicket, setLastTicket] = useState(null);
 
@@ -55,7 +56,8 @@ const RequesterPage = () => {
     try {
       const res = await createTicket({
         area_id: selectedArea.id,
-        requester_id_number: idNumber
+        requester_id_number: idNumber,
+        is_priority: isPriority
       });
       setLastTicket(res.data);
       setIdNumber('');
@@ -75,6 +77,11 @@ const RequesterPage = () => {
         {/* Ticket Container (Web + Print) */}
         <div className="glass-card text-center max-w-md w-full print:shadow-none print:border-none print:bg-transparent print:p-0 print:m-0 print:w-full print:max-w-full">
           <CheckCircle2 size={64} className="text-accent-green mb-4 mx-auto print:hidden" />
+          {lastTicket.is_priority && (
+            <div className="inline-flex items-center gap-1.5 bg-secondary text-white text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 print:border print:border-black print:text-black">
+              ★ Prioritaria
+            </div>
+          )}
 
           <h1 className="text-3xl font-bold mb-2 print:hidden">Ticket de Turno</h1>
           <p className="text-text-muted mb-6 border-b border-black/10 pb-4 print:hidden">
@@ -91,6 +98,19 @@ const RequesterPage = () => {
               <span className="text-text-muted text-sm uppercase tracking-widest print:text-sm print:text-black">Área</span>
               <div className="text-2xl font-bold text-gray-900 mt-1 print:text-xl print:text-black">{lastTicket.area?.name}</div>
             </div>
+
+            {(lastTicket.people_ahead > 0 || lastTicket.estimated_wait_minutes) && (
+              <div className="mt-4 pt-3 border-t border-primary/20 flex items-center justify-center gap-6 text-sm print:text-black print:border-t print:border-black/30">
+                <span className="text-text-muted font-bold uppercase tracking-wider text-xs">
+                  Delante tuyo: <span className="text-primary text-lg print:text-black">{lastTicket.people_ahead}</span>
+                </span>
+                {lastTicket.estimated_wait_minutes && (
+                  <span className="text-text-muted font-bold uppercase tracking-wider text-xs">
+                    Espera estimada: <span className="text-primary text-lg print:text-black">~{lastTicket.estimated_wait_minutes} min</span>
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="hidden print:block print:text-xs print:text-black print:mt-4 print:pt-2 print:border-t print:border-black/30">
@@ -231,6 +251,20 @@ const RequesterPage = () => {
                     <Delete size={24} className="hidden 2xl:block" />
                   </button>
                 </div>
+
+                {/* Prioridad: atención preferencial (normativa de filas en Colombia) */}
+                <button
+                  type="button"
+                  onClick={() => setIsPriority(prev => !prev)}
+                  aria-pressed={isPriority}
+                  className={`shrink-0 flex items-center gap-2.5 px-4 py-3 rounded-2xl border-2 text-left transition-all ${isPriority ? 'border-secondary bg-secondary/10' : 'border-black/10 bg-gray-50 hover:border-secondary/40'}`}
+                >
+                  <span className={`flex items-center justify-center w-8 h-8 rounded-xl shrink-0 text-lg ${isPriority ? 'bg-secondary text-white' : 'bg-gray-200 text-gray-500'}`} aria-hidden="true">★</span>
+                  <span>
+                    <span className="block text-xs font-black uppercase tracking-wider">Atención prioritaria</span>
+                    <span className="block text-[10px] text-text-muted mt-0.5">Adulto mayor, embarazo o discapacidad</span>
+                  </span>
+                </button>
 
                 {/* CTA: más compacto, centrado, mismo ancho de columna */}
                 <button

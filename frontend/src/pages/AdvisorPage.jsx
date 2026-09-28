@@ -227,7 +227,10 @@ const AdvisorPage = () => {
             {currentTicket ? (
               <div className="animate-fade-in w-full">
                 <span className="text-text-muted uppercase tracking-[0.2em] text-sm">Asesorando a:</span>
-                <h2 className="text-6xl md:text-8xl font-black text-primary mt-4 mb-2 break-all">{currentTicket.turn_number}</h2>
+                <h2 className="text-6xl md:text-8xl font-black text-primary mt-4 mb-2 break-all">
+                  {currentTicket.is_priority && <span className="text-secondary align-middle text-4xl md:text-6xl mr-2" aria-label="turno prioritario">★</span>}
+                  {currentTicket.turn_number}
+                </h2>
                 <div className="flex items-center justify-center gap-2 text-text-muted mb-10">
                   <Users size={16} />
                   <span>ID: {currentTicket.requester_id_number}</span>
@@ -301,7 +304,10 @@ const AdvisorPage = () => {
                 {waitingTickets.length > 0 && (
                   <div className="mt-6 inline-flex items-center gap-4 bg-gray-50 border border-black/10 rounded-2xl px-6 py-4">
                     <span className="text-xs font-bold uppercase tracking-widest text-text-muted">Siguiente</span>
-                    <span className="text-3xl font-mono font-black text-primary tabular-nums">{waitingTickets[0].turn_number}</span>
+                    <span className="text-3xl font-mono font-black text-primary tabular-nums">
+                      {waitingTickets[0].is_priority && <span className="text-secondary mr-1" aria-label="prioritario">★</span>}
+                      {waitingTickets[0].turn_number}
+                    </span>
                     <span className="text-xs text-text-muted">ID: {waitingTickets[0].requester_id_number}</span>
                   </div>
                 )}
@@ -328,10 +334,14 @@ const AdvisorPage = () => {
                 </div>
               ) : (
                 waitingTickets.map((ticket, idx) => (
-                  <div key={ticket.id} className="bg-gray-50 border border-black/10 p-4 rounded-xl flex justify-between items-center group hover:border-primary/40 transition-colors animate-fade-in">
-                    <div>
-                      <span className="text-xl font-mono font-bold text-primary">{ticket.turn_number}</span>
-                      <p className="text-xs text-text-muted mt-1">ID: {ticket.requester_id_number}</p>
+                  <div key={ticket.id} className={`p-4 rounded-xl flex justify-between items-center group transition-colors animate-fade-in ${ticket.is_priority ? 'bg-secondary/[0.08] border-2 border-secondary/50' : 'bg-gray-50 border border-black/10 hover:border-primary/40'}`}>
+                    <div className="flex items-center gap-2">
+                      {ticket.is_priority && <span className="text-secondary text-lg" title="Atención prioritaria" aria-label="Turno prioritario">★</span>}
+                      <div>
+                        <span className="text-xl font-mono font-bold text-primary">{ticket.turn_number}</span>
+                        {ticket.is_priority && <span className="block text-[9px] font-black uppercase tracking-widest text-secondary">Prioridad</span>}
+                        <p className="text-xs text-text-muted mt-1">ID: {ticket.requester_id_number}</p>
+                      </div>
                     </div>
                     <span className="text-[10px] uppercase font-bold text-text-muted bg-white border border-black/10 px-2 py-1 rounded">
                       #{idx + 1}

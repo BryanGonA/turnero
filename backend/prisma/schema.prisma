@@ -47,6 +47,8 @@ model Ticket {
   id                  Int          @id @default(autoincrement())
   requester_id_number String
   turn_number         String?
+  // Atención prioritaria: adulto mayor, embarazo o discapacidad (Ley 1279/2009)
+  is_priority         Boolean      @default(false)
   area_id             Int
   area                Area         @relation(fields: [area_id], references: [id])
   status              TicketStatus @default(WAITING)

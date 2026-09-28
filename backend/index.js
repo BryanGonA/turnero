@@ -525,19 +525,21 @@ app.get('/api/tickets', async (req, res) => {
   const tickets = await prisma.ticket.findMany({
     where,
     include: ticketInclude,
-    orderBy: { created_at: 'asc' },
+    orderBy: [{ is_priority: 'desc' }, { created_at: 'asc' }],
     take
   });
   res.json(tickets);
 });
 
 app.post('/api/tickets', async (req, res) => {
-  const { requester_id_number, area_id } = req.body;
+  const { requester_id_number, area_id, is_priority } = req.body;
   const areaId = parseInt(area_id, 10);
 
   if (!Number.isInteger(areaId)) {
     return res.status(400).json({ error: 'Área inválida' });
   }
+  // Prioridad estricta: solo si el cliente la envía explícitamente como true
+  const priority = is_priority === true;
   if (typeof requester_id_number !== 'string' || !/^\d{6,12}$/.test(requester_id_number.trim())) {
     return res.status(400).json({ error: 'El número de documento debe tener entre 6 y 12 dígitos' });
   }
@@ -565,14 +567,38 @@ app.post('/api/tickets', async (req, res) => {
           area_id: areaId,
           status: 'WAITING',
           turn_number: turnNumber,
-          service_date: day
+          service_date: day,
+          is_priority: priority
         },
         include: ticketInclude
       });
     });
 
     io.emit('ticket_created', ticket);
-    res.json(ticket);
+
+    // Espera estimada (NN/g): posición en fila del módulo + promedio de
+    // atención (called_at→served_at) histórico de los últimos 14 días.
+    let estimatedWaitMinutes = null;
+    let peopleAhead = 0;
+    try {
+      // count de Prisma (no SQL crudo): maneja el binding Date→DATE.
+      // Excluir el ticket recién creado: cuenta la gente DELANTE, no a sí mismo.
+      peopleAhead = await prisma.ticket.count({
+        where: { area_id: areaId, status: 'WAITING', service_date: day, id: { not: ticket.id } }
+      });
+      if (peopleAhead > 0) {
+        const [avg] = await prisma.$queryRaw`
+          SELECT AVG(EXTRACT(EPOCH FROM (served_at - called_at)) / 60)::float AS m
+          FROM "Ticket"
+          WHERE area_id = ${areaId} AND served_at IS NOT NULL AND called_at IS NOT NULL
+            AND service_date >= (CURRENT_DATE - INTERVAL '14 days')`;
+        if (avg?.m) estimatedWaitMinutes = Math.max(1, Math.round(peopleAhead * avg.m));
+      }
+    } catch (err) {
+      console.warn('[tickets] cálculo de espera falló:', err.message);
+    }
+
+    res.json({ ...ticket, people_ahead: peopleAhead, estimated_wait_minutes: estimatedWaitMinutes });
   } catch (err) {
     if (err.code === 'P2002') {
       // Colisión: la constraint única atrapó algo que el contador no debió permitir.
@@ -731,9 +757,10 @@ function canManageContent(req, res, next) {
 // Cache en memoria: cada anuncio se genera una sola vez.
 const audioCache = new Map();
 
-const buildAnnounceText = (turnNumber, areaName) => {
+const buildAnnounceText = (turnNumber, areaName, isPriority = false) => {
   const spelled = [...String(turnNumber || '')].join(' '); // "U E 0 0 1"
-  return `Turno ${spelled}. Acérquese al módulo ${areaName || ''}`.trim();
+  const prio = isPriority ? 'con prioridad, ' : '';
+  return `Turno ${spelled}. ${prio}Acérquese al módulo ${areaName || ''}`.trim();
 };
 
 // Voz neural (piper): texto por stdin → WAV en archivo temporal.
@@ -774,7 +801,7 @@ app.get('/api/audio/announce/:ticketId', async (req, res) => {
     if (!Number.isInteger(id)) return res.status(400).json({ error: 'Ticket inválido' });
     const ticket = await prisma.ticket.findUnique({ where: { id }, include: { area: true } });
     if (!ticket) return res.status(404).json({ error: 'Ticket no encontrado' });
-    const text = buildAnnounceText(ticket.turn_number, ticket.area?.name);
+    const text = buildAnnounceText(ticket.turn_number, ticket.area?.name, ticket.is_priority);
     if (!audioCache.has(text)) {
       let buf = null;
       try {

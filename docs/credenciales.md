@@ -11,6 +11,7 @@
 | `admin` | `adminpassword` | ADMIN | — | Todos (administra usuarios, áreas, cola, reportes, parámetros, contenido) |
 | `asesor1` | `asesor12345` | ADVISOR | PRINCIPAL | **UE** — Recepción de usuario y entrega de procesos |
 | `asesor2` | `asesor12345` | ADVISOR | PRINCIPAL | **AE** — Atención a estudiantes |
+| `asesor3` | `asesor12345` | ADVISOR | PRINCIPAL | **AC** — Atención Centro de conciliación |
 | `suplente1` | `suplente12345` | ADVISOR | SUPLENTE | **UE** — Recepción de usuario y entrega de procesos |
 
 **Nombres reales:** admin = *(seed)*, asesor1 = "Asesor Prueba", asesor2 = "Asesor B", suplente1 = "Suplente 1".
@@ -21,9 +22,8 @@
   transferir un turno en atención a un suplente de su área.
 - **SUPLENTE**: solo ve los turnos **asignados a él** (que un principal le
   haya transferido).
-- ⚠️ **Ningún asesor cubre el módulo AC** (Atención Centro de conciliación):
-  sus turnos no pueden ser llamados hasta asignar un asesor a esa área
-  (admin → Usuarios → editar → área "Atención Centro de conciliación").
+- Los tres módulos tienen asesor PRINCIPAL asignado (UE: asesor1, AE: asesor2,
+  AC: asesor3) más un SUPLENTE en UE.
 
 ### Cambio de contraseña obligatorio
 

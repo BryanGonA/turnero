@@ -20,9 +20,9 @@
 
 | # | Hallazgo | Severidad | Nota |
 |---|---|---|---|
-| D1 | **Repo sin ningún commit** (41 archivos sin trackear) | 🔴 Crítica | Todo el trabajo depende de un solo directorio |
-| D2 | **Sin backup de la BD** (volumen sin respaldo automático) | 🔴 Crítica | Un `down -v` o falla de disco borra 110+ turnos y usuarios |
-| D3 | **Módulo AC sin asesor** (0 de 3 módulos descubiertos) | 🔴 Funcional | Turnos de Conciliación no pueden ser llamados |
+| D1 | ~~Repo sin ningún commit~~ → **RESUELTO**: repo en `turnero/` con commits por unidad de trabajo | ✅ | 2026-09-28 |
+| D2 | ~~Sin backup~~ → **RESUELTO**: `backup.sh` con rotación, restauración probada en base scratch | ✅ | 2026-09-28 |
+| D3 | ~~AC sin asesor~~ → **RESUELTO**: asesor3 creado y verificado en AC | ✅ | 2026-09-28 |
 | D4 | Healthchecks: solo la BD (backend/frontend sin) | 🟠 | El stack se encontró caído 2 veces en silencio durante el desarrollo |
 | D5 | Backend monolítico: `index.js` de 1.154 líneas | 🟠 Mantenibilidad | 0 tests; refactor arriesgado sin red |
 | D6 | 24 errores eslint (estructura de effects, en 10 archivos) | 🟠 | Deuda preexistente |
@@ -44,8 +44,8 @@
 
 | Funcionalidad | Qué resuelve | Esfuerzo |
 |---|---|---|
-| **Turno prioritario** (adulto mayor, embarazo, discapacidad — normativa colombiana de prioridad en filas): kiosco pregunta → ticket marcado → asesor ve cola prioritaria → pantalla lo señala | Inclusión + cumplimiento normativo. Con piper ya instalado, el kiosco puede **anunciar en voz alta** el paso prioritario | M |
-| **Tiempo estimado de espera** (kiosco y pantalla: "espera estimada ~12 min") — calculable con promedios históricos por área | Recomendación explícita de la investigación NN/g; reduce abandono de fila | M |
+| ~~Turno prioritario~~ → **IMPLEMENTADO** (2026-09-28): toggle en kiosco, badge en ticket, ★ en asesor y pantalla, prioridad primera en el orden de llamada, anuncio de voz "con prioridad" | ✓ 15/15 E2E | Hecho |
+| ~~Tiempo estimado de espera~~ → **IMPLEMENTADO** (2026-09-28): posición en fila + promedio histórico de atención por módulo, en el ticket del kiosco | ✓ E2E | Hecho |
 | **Reportes por módulo** (turnos/espera por área, hora pico; hoy solo por asesor y resumen diario) | Operación: dimensionar personal por módulo | S-M |
 | **"Cerrar jornada"** con resumen (admin: marcar pendientes UNSERVED + exportar resumen del día en un clic, en vez del job nocturno) | Cierre operativo formal | S |
 | **Notificación WhatsApp** del turno ("te falta 1 persona") | Los estudiantes se alejan del TV; hoy solo hay pantalla | L (API externa + costo) |

@@ -269,6 +269,11 @@ const BigScreenPage = () => {  // Persistente: último turno llamado (se recuper
                 <span className="inline-block bg-white text-primary px-10 py-3 rounded-full text-lg xl:text-2xl font-black uppercase tracking-[0.35em] mb-8 shadow-2xl">
                   Ahora atendiendo
                 </span>
+                {flashTicket.is_priority && (
+                  <span className="block text-secondary text-xl xl:text-3xl font-black uppercase tracking-[0.3em] mb-4">
+                    ★ Prioritaria ★
+                  </span>
+                )}
                 <h2 className="text-white text-[clamp(5rem,16vw,12rem)] font-black leading-none tabular-nums drop-shadow-lg">
                   {flashTicket.turn_number}
                 </h2>
@@ -319,8 +324,9 @@ const BigScreenPage = () => {  // Persistente: último turno llamado (se recuper
             </h3>
             <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-hidden">
               {allTickets.slice(0, 5).map((ticket) => (
-                <div key={ticket.id} className="flex-1 min-h-0 min-h-[2.5rem] max-h-16 bg-white border border-black/10 rounded-xl px-5 flex items-center justify-between gap-3 shadow-sm">
+                <div key={ticket.id} className={`flex-1 min-h-0 min-h-[2.5rem] max-h-16 rounded-xl px-5 flex items-center justify-between gap-3 shadow-sm border ${ticket.is_priority ? 'bg-secondary/10 border-secondary/50' : 'bg-white border-black/10'}`}>
                   <span className="font-mono text-xl xl:text-2xl font-black text-slate-700 tracking-wide tabular-nums">
+                    {ticket.is_priority && <span className="text-secondary mr-1.5" aria-label="prioritario">★</span>}
                     {ticket.turn_number}
                   </span>
                   <span className="text-[11px] font-bold text-text-muted uppercase tracking-widest text-right truncate max-w-[45%]">
