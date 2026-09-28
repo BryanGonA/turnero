@@ -1,0 +1,16 @@
+# Dependencias y builds
+node_modules/
+dist/
+/generated/prisma
+
+# Secretos y entorno
+.env
+.env.*
+!.env.example
+
+# Contenido subido en runtime
+backend/uploads/
+
+# Sistema
+.DS_Store
+*.log

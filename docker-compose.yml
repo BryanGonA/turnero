@@ -1,0 +1,48 @@
+# Pila de pruebas del Turnero (Podman / Podman Compose).
+#   podman-compose up -d --build
+# Frontend: http://localhost:8080   Backend: http://localhost:3001
+services:
+  db:
+    image: docker.io/library/postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: turnero
+      POSTGRES_PASSWORD: turnero
+      POSTGRES_DB: turnero
+    volumes:
+      - turnero-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U turnero -d turnero"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://turnero:turnero@db:5432/turnero
+      JWT_SECRET: cambia-esto-en-produccion
+      PORT: 3001
+      TZ: America/Bogota
+    volumes:
+      - turnero-uploads:/app/uploads
+    ports:
+      - "3001:3001"
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  turnero-pgdata:
+  turnero-uploads:

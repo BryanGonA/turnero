@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  id_number String   @unique
+  password                 String   @default("password123") // Temporary default for prototype
+  requires_password_change Boolean  @default(true)
+  role                     Role     @default(REQUESTER)
+  advisor_profile          String   @default("PRINCIPAL") // "PRINCIPAL" or "SUPLENTE"
+  area_id   Int?
+  area      Area?    @relation(fields: [area_id], references: [id])
+  tickets   Ticket[] @relation("AdvisorTickets")
+}
+
+enum Role {
+  ADMIN
+  ADVISOR
+  REQUESTER
+  MARKETING
+}
+
+model Area {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  id_prefix String   @unique @default("A")
+  is_public Boolean  @default(true)
+  users     User[]
+  tickets   Ticket[]
+  counters  DailyCounter[]
+}
+
+model Parameter {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String
+}
+
+model Ticket {
+  id                  Int          @id @default(autoincrement())
+  requester_id_number String
+  turn_number         String?
+  area_id             Int
+  area                Area         @relation(fields: [area_id], references: [id])
+  status              TicketStatus @default(WAITING)
+  advisor_id          Int?
+  advisor             User?        @relation("AdvisorTickets", fields: [advisor_id], references: [id])
+  // Día de servicio (corte de jornada en hora local). Clave de la numeración diaria.
+  service_date        DateTime     @default(now()) @db.Date
+  // Marcas de atención para reportes reales (no de creación)
+  called_at           DateTime?
+  served_at           DateTime?
+  created_at          DateTime     @default(now())
+  updated_at          DateTime     @updatedAt
+
+  @@unique([area_id, service_date, turn_number])
+}
+
+// Contador atómico de turnos por área y día (fix C3). La fuente de verdad
+// del correlativo vive aquí y se incrementa dentro de una transacción.
+model DailyCounter {
+  last_number Int    @default(0)
+  area_id     Int
+  area        Area   @relation(fields: [area_id], references: [id])
+  date        DateTime @db.Date
+
+  @@id([area_id, date])
+}
+
+// Auditoría de acciones del personal (Fase 3): registro inmutable de quién
+// hizo qué y cuándo. Alimenta la pestaña "Registro de Actividad" del admin.
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  user_id    Int?
+  user_name  String?  // desnormalizado: sobrevive aunque se borre el usuario
+  action     String   // LOGIN, TICKET_CALL, TICKET_SERVED, TICKET_TRANSFER, USER_CREATED, ...
+  entity     String   // ticket | user | area | video | auth
+  entity_id  Int?
+  detail     String?  // JSON serializado con contexto mínimo
+  created_at DateTime @default(now())
+
+  @@index([entity, entity_id])
+  @@index([created_at])
+}
+
+enum TicketStatus {
+  WAITING
+  CALLING
+  SERVED
+  DONE
+  UNSERVED
+}
+
+model Video {
+  id           Int      @id @default(autoincrement())
+  filename     String
+  originalName String
+  url          String
+  type         String   @default("video") // "video" | "image"
+  active       Boolean  @default(true)
+  order        Int      @default(0)
+  created_at   DateTime @default(now())
+}
