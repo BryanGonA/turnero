@@ -14,3 +14,4 @@ backend/uploads/
 # Sistema
 .DS_Store
 *.log
+backups/
