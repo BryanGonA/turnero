@@ -1,0 +1,42 @@
+/* tokens.css — Colores y variables del tema (Tailwind v4 + :root).
+   @theme genera las utilidades (bg-primary, text-secondary...);
+   :root mantiene las vars que usan los estilos propios. */
+
+/* Tokens del tema para Tailwind v4: sin esto, clases como text-primary /
+   bg-primary / from-primary NO existen (los colores vivían solo en :root). */
+@theme {
+  --color-primary: #ce1a1e;
+  --color-primary-hover: #a5121a;
+  --color-secondary: #bf9900;
+  --color-bg-main: #f4f5f8;
+  --color-text-main: #0f172a;
+  --color-text-muted: #55617a;
+  --color-accent-blue: #0ea5e9;
+  --color-accent-green: #10b981;
+  --color-accent-red: #ef4444;
+}
+
+:root {
+  /* Color Palette — Universidad Libre (rojo institucional + dorado) */
+  --primary: #ce1a1e;
+  --primary-hover: #a5121a;
+  --secondary: #bf9900;
+  --bg-main: #f4f5f8;
+  --bg-card: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #55617a;
+  --accent-blue: #0ea5e9;
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+
+  /* Superficies claras, borde definido */
+  --glass-bg: #ffffff;
+  --glass-border: #e2e8f0;
+  --glass-blur: blur(0);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.06);
+  --shadow-md: 0 4px 10px -2px rgb(15 23 42 / 0.10);
+  --shadow-lg: 0 12px 24px -6px rgb(15 23 42 / 0.12);
+  --shadow-xl: 0 24px 48px -12px rgb(15 23 42 / 0.18);
+}

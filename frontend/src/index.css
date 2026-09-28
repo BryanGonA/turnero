@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+/* ==========================================================================
+   Arquitectura de estilos globales — carpeta src/styles/
+   ---------------------------------------------------------------------------
+   Los estilos propios viven divididos por responsabilidad:
+
+     styles/tokens.css      colores y variables del tema
+     styles/base.css        resets y estilos de elemento   → @layer base
+     styles/components.css  clases de componente            → @layer components
+     styles/animations.css  keyframes y clases de animación
+     styles/print.css       impresión del ticket
+
+   POR QUÉ LAS CAPAS: Tailwind v4 emite sus utilidades en @layer utilities.
+   En el cascade de CSS, un estilo SIN capa le gana SIEMPRE a uno con capa,
+   por eso TODO lo propio va en @layer base/components y las utilidades
+   (p-*, text-*, etc.) pueden sobreescribirlo. Antes de este refactor,
+   un reset `* { padding: 0 }` sin capa mataba en silencio todos los
+   paddings de Tailwind en toda la app.
+   ========================================================================== */
+
+@import "./styles/tokens.css";
+@import "./styles/base.css";
+@import "./styles/components.css";
+@import "./styles/animations.css";
+@import "./styles/print.css";

@@ -1,0 +1,10 @@
+/* print.css — Reglas de impresión del ticket del kiosco. */
+
+@media print {
+  @page {
+    margin: 0;
+  }
+  body, html {
+    width: 80mm;
+  }
+}

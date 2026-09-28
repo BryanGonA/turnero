@@ -1,0 +1,53 @@
+/* base.css — Resets y estilos de elemento. Van en @layer base para que
+   las utilidades de Tailwind (@layer utilities) SIEMPRE puedan pisarlos
+   (lección del bug del cascade: lo sin capa le gana a lo con capa). */
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(1200px 600px at 80% -10%, rgba(206, 26, 30, 0.06), transparent),
+                radial-gradient(900px 500px at -10% 110%, rgba(191, 153, 0, 0.05), transparent),
+                var(--bg-main);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, .heading-font {
+    font-family: 'Outfit', sans-serif;
+  }
+
+  button {
+    cursor: pointer;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+  }
+
+  button:focus-visible, .input-field:focus-visible, a:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  /* Ocultar el ícono de ojo nativo de navegadores como Edge */
+  input[type="password"]::-ms-reveal,
+  input[type="password"]::-ms-clear {
+    display: none;
+  }
+
+  select.input-field option {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+  }
+}
